@@ -1,19 +1,22 @@
-name: 'Hello World'
-description: 'Greet someone'
+# TODO: Cache Docker containers so builds run faster.
+# TODO: https://github.com/tpetchel/rolling-thunder/issues/12
+name: rolling-thunder-test
+description: Runs a rolling-thunder test
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  test-project:
+    description: Test project to run
+    default: _unit/smoke
     required: true
-    default: 'World'
-outputs:
-  random-number: 
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
 runs:
-  using: "composite"
-  steps: 
-    - run: echo Hello ${{ inputs.who-to-greet }}.
-      shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
+  using: composite
+  steps:
+  - name: Setup .NET Core
+    uses: actions/setup-dotnet@v1
+    with:
+      dotnet-version: 3.1.301
+  - name: Install dependencies
+    run: dotnet restore
+  - name: Build
+    run: dotnet build --configuration Release --no-restore
+  - name: Test
+    run: dotnet test tests/${{ inputs.test-project }}
