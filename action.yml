@@ -1,22 +1,22 @@
 # TODO: Cache Docker containers so builds run faster.
 # TODO: https://github.com/tpetchel/rolling-thunder/issues/12
 name: rolling-thunder-test
+author: tpetchel
 description: Runs a rolling-thunder test
 inputs:
-  test-project:
+  testProject:
     description: Test project to run
-    default: _unit/smoke
     required: true
 runs:
-  using: composite
+  using: "composite"
   steps:
   - name: Setup .NET Core
     uses: actions/setup-dotnet@v1
     with:
-      dotnet-version: 3.1.301
+      dotnet-version: 5.0.100
   - name: Install dependencies
     run: dotnet restore
   - name: Build
     run: dotnet build --configuration Release --no-restore
   - name: Test
-    run: dotnet test tests/${{ inputs.test-project }}
+    run: dotnet test tests/${{ inputs.testProject }} --logger trx
